@@ -1,0 +1,26 @@
+<Window x:Class="SideHUD.FpsOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FPS Overlay" 
+        Width="Auto" 
+        Height="Auto"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight">
+    <TextBlock x:Name="FpsTextBlock"
+               Text="FPS  —"
+               FontFamily="Segoe UI, Arial"
+               FontSize="18"
+               FontWeight="SemiBold"
+               Foreground="#CCFFFFFF"
+               Margin="8,4">
+        <TextBlock.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="3" ShadowDepth="1" Opacity="0.8"/>
+        </TextBlock.Effect>
+    </TextBlock>
+</Window>
+

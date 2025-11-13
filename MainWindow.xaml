@@ -1,0 +1,97 @@
+<Window x:Class="SideHUD.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SideHUD" 
+        Width="300" 
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        Loaded="Window_Loaded">
+    <Window.Resources>
+        <!-- Gradient Brush for Background -->
+        <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop x:Name="GradientStop1" Color="#40000000" Offset="0"/>
+            <GradientStop x:Name="GradientStop2" Color="#60000000" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI, Consolas, monospace"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="16,8"/>
+            <Setter Property="LineHeight" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="1" Opacity="0.7"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Separator Style -->
+        <Style x:Key="SeparatorStyle" TargetType="Rectangle">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="12,4"/>
+            <Setter Property="Opacity" Value="0.3"/>
+        </Style>
+    </Window.Resources>
+    
+    <Border x:Name="MainBorder" 
+            CornerRadius="12" 
+            Padding="0"
+            BorderThickness="0">
+        <Border.Effect>
+            <DropShadowEffect x:Name="MainShadow" Color="Black" BlurRadius="12" ShadowDepth="3" Opacity="0.4"/>
+        </Border.Effect>
+        
+        <!-- Background with gradient -->
+        <Border x:Name="BackgroundBorder" 
+                CornerRadius="12"
+                Background="{StaticResource BackgroundGradient}">
+            
+            <!-- Content -->
+            <StackPanel x:Name="ContentPanel" 
+                      Orientation="Vertical"
+                      Background="Transparent">
+                
+                <!-- CPU -->
+                <TextBlock x:Name="CpuText" 
+                          Text="CPU  —%  •  —°C"
+                          FontSize="14"/>
+                
+                <Rectangle Style="{StaticResource SeparatorStyle}" x:Name="Separator1"/>
+                
+                <!-- GPU -->
+                <TextBlock x:Name="GpuText" 
+                          Text="GPU  —%  •  —°C"
+                          FontSize="14"/>
+                
+                <Rectangle Style="{StaticResource SeparatorStyle}" x:Name="Separator2"/>
+                
+                <!-- OVERALL -->
+                <TextBlock x:Name="OverallText" 
+                          Text="OVERALL  •  —°C"
+                          FontSize="14"
+                          FontWeight="Bold"/>
+                
+                <Rectangle Style="{StaticResource SeparatorStyle}" x:Name="Separator3"/>
+                
+                <!-- FPS (hidden by default) -->
+                <TextBlock x:Name="FpsText" 
+                          Text="FPS  —" 
+                          Visibility="Collapsed"
+                          FontSize="14"/>
+                
+                <!-- Power -->
+                <TextBlock x:Name="PowerText" 
+                          Text="Est. System Power  — W"
+                          FontSize="13"
+                          Margin="16,8,16,12"/>
+                
+            </StackPanel>
+        </Border>
+    </Border>
+</Window>
