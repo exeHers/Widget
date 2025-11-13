@@ -615,19 +615,19 @@ public partial class MainWindow : Window
                         {
                             _fpsOverlay.HideFps();
                         }
-                        }
-                        catch (Exception ex)
-                        {
-                            ErrorLogger.Log("Error updating FPS overlay", ex);
-                            // Try to recreate overlay if it crashed
-                            TryRecreateFpsOverlay();
-                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        // FPS overlay is null - try to recreate it
+                        ErrorLogger.Log("Error updating FPS overlay", ex);
+                        // Try to recreate overlay if it crashed
                         TryRecreateFpsOverlay();
                     }
+                }
+                else
+                {
+                    // FPS overlay is null - try to recreate it
+                    TryRecreateFpsOverlay();
+                }
                 }
                 else
                 {

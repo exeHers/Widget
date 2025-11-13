@@ -106,11 +106,28 @@ public class RTSSService : IDisposable
             
             if (!processRunning)
             {
-                return "RTSS (RivaTuner Statistics Server) is not running.\n\n" +
-                       "To fix:\n" +
-                       "1. Download and install RTSS from: https://www.guru3d.com/files-details/rtss-rivatuner-statistics-server-download.html\n" +
-                       "2. Start RTSS\n" +
-                       "3. Make sure OSD is enabled in RTSS settings";
+                // Check if HWiNFO64 is running (user might have installed it for FPS)
+                var hwinfoProcesses = System.Diagnostics.Process.GetProcessesByName("HWiNFO64");
+                if (hwinfoProcesses.Length == 0)
+                {
+                    hwinfoProcesses = System.Diagnostics.Process.GetProcessesByName("HWiNFO");
+                }
+                
+                string message = "RTSS (RivaTuner Statistics Server) is not running.\n\n";
+                
+                if (hwinfoProcesses.Length > 0)
+                {
+                    message += "Note: HWiNFO64 is running, but FPS monitoring requires RTSS.\n" +
+                               "HWiNFO64 can display FPS in its OSD, but the FPS data comes from RTSS shared memory.\n\n";
+                }
+                
+                message += "To fix:\n" +
+                           "1. Download and install RTSS from: https://www.guru3d.com/files-details/rtss-rivatuner-statistics-server-download.html\n" +
+                           "2. Start RTSS\n" +
+                           "3. Make sure OSD is enabled in RTSS settings\n" +
+                           "4. Both HWiNFO64 and RTSS should be running for FPS monitoring";
+                
+                return message;
             }
             
             if (!sharedMemoryAvailable)

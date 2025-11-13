@@ -26,7 +26,11 @@ A production-ready Windows desktop widget that displays real-time system metrics
 - .NET 8.0 Runtime
 - For best results:
   - **HWiNFO64** with Shared Memory enabled (Settings → Safety → Shared Memory Support)
-  - **RTSS (RivaTuner Statistics Server)** for FPS monitoring (optional)
+    - Provides CPU/GPU temperatures, usage, and power data
+  - **RTSS (RivaTuner Statistics Server)** for FPS monitoring
+    - **Required for FPS monitoring**: HWiNFO64 can display FPS in its OSD, but the FPS data comes from RTSS shared memory
+    - Both HWiNFO64 and RTSS must be running for FPS monitoring to work
+    - Download: https://www.guru3d.com/files-details/rtss-rivatuner-statistics-server-download.html
   - NVIDIA GPU with NVML drivers (for fallback GPU monitoring)
 
 ## Installation
@@ -98,7 +102,14 @@ Edit `appsettings.json` to customize:
 ## Troubleshooting
 
 - **No sensor data**: Ensure HWiNFO64 is running with Shared Memory enabled
-- **No FPS**: Ensure RTSS is running and monitoring a game
+  - Open HWiNFO64 → Settings → Safety → Enable "Shared Memory Support"
+  - Make sure the Sensors window is open in HWiNFO64
+- **No FPS**: Both HWiNFO64 and RTSS must be running for FPS monitoring
+  - HWiNFO64 provides hardware sensor data (CPU/GPU temps, usage, power)
+  - RTSS provides FPS data via shared memory
+  - HWiNFO64 can display FPS in its OSD, but the FPS data comes from RTSS
+  - Make sure RTSS is running and OSD is enabled in RTSS settings
+  - Start a game to see FPS values
 - **GPU data missing**: Try enabling HWiNFO or ensure NVIDIA drivers are installed for NVML fallback
 - **Theme not updating**: Use "Re-sample Wallpaper Colors" from tray menu
 

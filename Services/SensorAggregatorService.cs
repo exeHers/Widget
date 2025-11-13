@@ -110,30 +110,51 @@ public class SensorAggregatorService : IDisposable
             data.OverallTemp = Math.Max(data.OverallTemp, Math.Max(data.CpuTemp, data.GpuTemp));
 
             // Read FPS from RTSS - try multiple times if needed
-            var fps = _rtss.ReadFps();
+            // Note: HWiNFO64 can display FPS in its OSD, but the FPS data comes from RTSS shared memory
+            // Both HWiNFO64 and RTSS should be running for FPS monitoring to work
+            var fps = 0.0;
             
-            // Additional validation: reject low values that are likely false positives
-            // Values 1-9 are almost never actual FPS (they're usually frame counters or other metrics)
-            if (fps >= 1 && fps < 10)
+            // Check if RTSS is available (required for FPS monitoring)
+            if (_rtss.IsAvailable())
             {
-                ErrorLogger.Log($"Rejecting low FPS value {fps} (likely false positive - frame counter or other metric)");
-                fps = 0; // Treat as no FPS
-            }
-            
-            // If RTSS returned 0 or invalid, try reading again (sometimes RTSS needs a moment)
-            if (fps == 0 && _rtss.IsAvailable())
-            {
-                System.Threading.Thread.Sleep(10); // Small delay
-                var retryFps = _rtss.ReadFps();
+                fps = _rtss.ReadFps();
                 
-                // Validate retry result too
-                if (retryFps >= 1 && retryFps < 10)
+                // Additional validation: reject low values that are likely false positives
+                // Values 1-9 are almost never actual FPS (they're usually frame counters or other metrics)
+                if (fps >= 1 && fps < 10)
                 {
-                    ErrorLogger.Log($"Rejecting low retry FPS value {retryFps} (likely false positive)");
-                    retryFps = 0;
+                    ErrorLogger.Log($"Rejecting low FPS value {fps} (likely false positive - frame counter or other metric)");
+                    fps = 0; // Treat as no FPS
                 }
                 
-                fps = retryFps;
+                // If RTSS returned 0 or invalid, try reading again (sometimes RTSS needs a moment)
+                if (fps == 0)
+                {
+                    System.Threading.Thread.Sleep(10); // Small delay
+                    var retryFps = _rtss.ReadFps();
+                    
+                    // Validate retry result too
+                    if (retryFps >= 1 && retryFps < 10)
+                    {
+                        ErrorLogger.Log($"Rejecting low retry FPS value {retryFps} (likely false positive)");
+                        retryFps = 0;
+                    }
+                    
+                    fps = retryFps;
+                }
+            }
+            else
+            {
+                // RTSS not available - check if HWiNFO64 is running (user might have installed it for FPS)
+                if (_hwinfo.IsAvailable())
+                {
+                    // HWiNFO64 is running but RTSS is not - FPS won't work without RTSS
+                    // Log this once per minute to avoid spam
+                    if (DateTime.Now.Second % 60 == 0)
+                    {
+                        ErrorLogger.Log("HWiNFO64 is running but RTSS is not available. FPS monitoring requires RTSS (RivaTuner Statistics Server). Please install and start RTSS for FPS monitoring.");
+                    }
+                }
             }
             
             // Detect if a game is running using multiple methods:

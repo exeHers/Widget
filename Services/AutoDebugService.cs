@@ -160,13 +160,49 @@ public class AutoDebugService : IDisposable
                 _sensorRestartAttempts = 0; // Reset on success
             }
             
-            // Check RTSS availability
+            // Check RTSS availability (required for FPS monitoring with HWiNFO64)
             var rtss = new RTSSService();
             bool rtssAvailable = rtss.IsAvailable();
             
-            if (!rtssAvailable && _rtssRestartAttempts < MAX_RESTART_ATTEMPTS)
+            // Check if HWiNFO64 is running but RTSS is not (common scenario)
+            bool hwinfoRunning = hwinfoAvailable || 
+                                 Process.GetProcessesByName("HWiNFO64").Length > 0 ||
+                                 Process.GetProcessesByName("HWiNFO").Length > 0;
+            
+            if (!rtssAvailable && hwinfoRunning && _rtssRestartAttempts < MAX_RESTART_ATTEMPTS)
             {
-                // Check if process is running but shared memory isn't available
+                // HWiNFO64 is running but RTSS is not - FPS monitoring won't work
+                var processes = System.Diagnostics.Process.GetProcessesByName("RTSS");
+                if (processes.Length == 0)
+                {
+                    processes = System.Diagnostics.Process.GetProcessesByName("RivaTunerStatisticsServer");
+                }
+                
+                if (processes.Length > 0)
+                {
+                    // Process is running but shared memory not available
+                    IssueDetected?.Invoke(this, "RTSS is running but Shared Memory is not accessible. Make sure RTSS is fully started and OSD is enabled.\n\nFor FPS monitoring with HWiNFO64, both HWiNFO64 and RTSS must be running.");
+                }
+                else
+                {
+                    // Process not running - provide helpful message
+                    IssueDetected?.Invoke(this, "HWiNFO64 is running but RTSS is not available.\n\nFor FPS monitoring, you need to install and start RTSS (RivaTuner Statistics Server).\nHWiNFO64 can display FPS in its OSD, but the FPS data comes from RTSS shared memory.\n\nDownload RTSS from: https://www.guru3d.com/files-details/rtss-rivatuner-statistics-server-download.html");
+                    
+                    // Try to reconnect periodically
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(3000); // Wait a bit longer
+                        if (rtss.IsAvailable())
+                        {
+                            AutoFixApplied?.Invoke(this, "RTSS reconnected successfully - FPS monitoring now available");
+                            _rtssRestartAttempts = 0;
+                        }
+                    });
+                }
+            }
+            else if (!rtssAvailable && !hwinfoRunning)
+            {
+                // Neither is running - check if process is running but shared memory isn't available
                 var processes = System.Diagnostics.Process.GetProcessesByName("RTSS");
                 if (processes.Length == 0)
                 {
