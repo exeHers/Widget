@@ -1,3 +1,0 @@
-D:\#ComposerTrading#\Widget\bin\Release\net8.0-windows\win-x64\publish\SideHUD.pdb
-D:\#ComposerTrading#\Widget\bin\Release\net8.0-windows\win-x64\publish\appsettings.json
-D:\#ComposerTrading#\Widget\bin\Release\net8.0-windows\win-x64\publish\SideHUD.exe
