@@ -195,6 +195,31 @@ public partial class MainWindow : Window
         
         // Start desktop visibility monitoring
         StartDesktopMonitoring();
+        
+        // Auto-enable startup on first run if not already enabled
+        try
+        {
+            if (!StartupService.IsStartupEnabled())
+            {
+                if (StartupService.EnableStartup())
+                {
+                    _trayService.StartupEnabled = true;
+                    ErrorLogger.Log("Startup automatically enabled on first run");
+                }
+                else
+                {
+                    ErrorLogger.Log("Failed to auto-enable startup - user can enable manually via tray menu");
+                }
+            }
+            else
+            {
+                _trayService.StartupEnabled = true; // Update tray menu to reflect current status
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log("Error auto-enabling startup", ex);
+        }
     }
     
     private void StartDesktopMonitoring()
