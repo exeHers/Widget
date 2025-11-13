@@ -105,7 +105,23 @@ public class StartupService
                 // Ignore - try next method
             }
             
-            // Method 3: Use Assembly.Location (works for non-published apps)
+            // Method 3: Use AppContext.BaseDirectory (works for single-file apps)
+            var baseDir = AppContext.BaseDirectory;
+            if (!string.IsNullOrEmpty(baseDir))
+            {
+                var baseExeName = Path.GetFileNameWithoutExtension(AppDomain.CurrentDomain.FriendlyName);
+                if (string.IsNullOrEmpty(baseExeName) || !baseExeName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    baseExeName = "SideHUD.exe";
+                }
+                var baseExePath = Path.Combine(baseDir, baseExeName);
+                if (File.Exists(baseExePath))
+                {
+                    return Path.GetFullPath(baseExePath);
+                }
+            }
+            
+            // Method 4: Use Assembly.Location (works for non-published apps, but not single-file)
             var assembly = Assembly.GetExecutingAssembly();
             var location = assembly.Location;
             
@@ -114,32 +130,32 @@ public class StartupService
                 return Path.GetFullPath(location);
             }
             
-            // Method 4: Try to find the .exe in common locations
-            var exeName = Path.GetFileNameWithoutExtension(assembly.GetName().Name) + ".exe";
+            // Method 5: Try to find the .exe in common locations
+            var assemblyExeName = Path.GetFileNameWithoutExtension(assembly.GetName().Name) + ".exe";
             var currentDir = Directory.GetCurrentDirectory();
             
             // Check current directory
-            var exePath = Path.Combine(currentDir, exeName);
-            if (File.Exists(exePath))
+            var currentExePath = Path.Combine(currentDir, assemblyExeName);
+            if (File.Exists(currentExePath))
             {
-                return Path.GetFullPath(exePath);
+                return Path.GetFullPath(currentExePath);
             }
             
             // Try bin/Debug/net8.0-windows
-            var debugPath = Path.Combine(currentDir, "bin", "Debug", "net8.0-windows", exeName);
+            var debugPath = Path.Combine(currentDir, "bin", "Debug", "net8.0-windows", assemblyExeName);
             if (File.Exists(debugPath))
             {
                 return Path.GetFullPath(debugPath);
             }
             
             // Try bin/Release/net8.0-windows
-            var releasePath = Path.Combine(currentDir, "bin", "Release", "net8.0-windows", exeName);
+            var releasePath = Path.Combine(currentDir, "bin", "Release", "net8.0-windows", assemblyExeName);
             if (File.Exists(releasePath))
             {
                 return Path.GetFullPath(releasePath);
             }
             
-            ErrorLogger.Log($"Cannot find executable: {exeName}. Tried: {currentDir}, ProcessPath: {processPath}, Location: {location}");
+            ErrorLogger.Log($"Cannot find executable: {assemblyExeName}. Tried: {currentDir}, ProcessPath: {processPath}, Location: {location}");
             return string.Empty;
         }
         catch (Exception ex)

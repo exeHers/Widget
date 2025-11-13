@@ -29,7 +29,26 @@ A production-ready Windows desktop widget that displays real-time system metrics
   - **RTSS (RivaTuner Statistics Server)** for FPS monitoring (optional)
   - NVIDIA GPU with NVML drivers (for fallback GPU monitoring)
 
-## Building
+## Installation
+
+### Quick Install (Standalone Executable)
+
+1. **Build the application:**
+   ```powershell
+   .\publish.ps1
+   ```
+   Or manually:
+   ```powershell
+   dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+   ```
+
+2. **Copy the `publish` folder** from `bin\Release\net8.0-windows\win-x64\publish\` to your desired installation location (e.g., `C:\Program Files\SideHUD`)
+
+3. **Run `SideHUD.exe` once** - it will automatically register for Windows startup on first run
+
+4. **Restart your PC** to verify auto-startup works
+
+### Development Build
 
 1. Ensure you have .NET 8.0 SDK installed
 2. Open a terminal in the project directory
@@ -39,6 +58,8 @@ A production-ready Windows desktop widget that displays real-time system metrics
    dotnet build
    dotnet run
    ```
+
+**Note:** For detailed installation instructions, see [INSTALL.md](INSTALL.md)
 
 ## Configuration
 
